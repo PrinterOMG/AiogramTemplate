@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 def register_all_middlewares(dp, config):
     dp.setup_middleware(middlewares.EnvironmentMiddleware(config=config))
+    dp.setup_middleware(middlewares.ThrottlingMiddleware())
 
 
 def register_all_filters(dp):
