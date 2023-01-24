@@ -1,5 +1,7 @@
 import asyncio
+import datetime
 import logging
+import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -31,16 +33,21 @@ def register_all_handlers(dp):
 
 
 async def main():
+    log_file = rf'logs/{datetime.datetime.now().strftime("%d-%m-%Y %H-%M-%S")}.log'
+    if not os.path.exists('logs'): os.mkdir('logs')
     logging.basicConfig(
         level=logging.INFO,
         format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
-        handlers=(logging.FileHandler(r'logs.log'), logging.StreamHandler())
+        handlers=(logging.FileHandler(log_file), logging.StreamHandler())
     )
     logger.info('Starting bot')
     config = load_config('.env')
 
-    storage = RedisStorage2() if config.bot.use_redis else MemoryStorage()
     bot = Bot(token=config.bot.token, parse_mode='HTML')
+    bot_info = await bot.me
+    logger.info(f'Bot: {bot_info.username} [{bot_info.mention}]')
+
+    storage = RedisStorage2() if config.bot.use_redis else MemoryStorage()
     dp = Dispatcher(bot, storage=storage)
     redis = Redis()
 
