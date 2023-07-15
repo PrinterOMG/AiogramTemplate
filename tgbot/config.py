@@ -16,7 +16,7 @@ class DatabaseConfig:
 class TelegramBot:
     token: str
     admin_ids: list[int]
-    use_redis: bool
+    write_logs: bool
 
 
 @dataclass
@@ -39,7 +39,7 @@ def load_config(path: str = None):
         bot=TelegramBot(
             token=env.str('BOT_TOKEN'),
             admin_ids=list(map(int, env.list('ADMINS'))),
-            use_redis=env.bool('USE_REDIS'),
+            write_logs=env.bool('WRITE_LOGS'),
         ),
         database=DatabaseConfig(
             host=env.str('DB_HOST'),
