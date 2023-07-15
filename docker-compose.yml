@@ -8,11 +8,20 @@ services:
     restart: always
     depends_on:
       - redis
+      - postgres
   redis:
     image: redis
     restart: always
     volumes:
       - redis_data:/data
+  postgres:
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
 
 volumes:
   redis_data:
+  postgres_data:

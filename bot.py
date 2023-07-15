@@ -4,15 +4,16 @@ import logging
 import os
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aioredis import Redis
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 from tgbot.config import load_config
 from tgbot import handlers
 from tgbot import filters
 from tgbot import middlewares
-
+from tgbot.services.database.base import Base
 
 logger = logging.getLogger(__name__)
 
@@ -34,16 +35,17 @@ def register_all_handlers(dp):
 
 async def main():
     config = load_config('.env')
-    handlers = [logging.StreamHandler()]
+    logging_handlers = [logging.StreamHandler()]
     if config.bot.write_logs:
-        if not os.path.exists('logs'): os.mkdir('logs')
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
         log_file = rf'logs/{datetime.datetime.now().strftime("%d-%m-%Y %H-%M-%S")}.log'
-        handlers.append(logging.FileHandler(log_file))
+        logging_handlers.append(logging.FileHandler(log_file))
 
     logging.basicConfig(
         level=logging.INFO,
         format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
-        handlers=handlers
+        handlers=logging_handlers
     )
     logger.info('Starting bot')
 
@@ -55,8 +57,17 @@ async def main():
     dp = Dispatcher(bot, storage=storage)
     redis = Redis(host='redis')
 
+    engine = create_async_engine(
+        f'postgresql+asyncpg://{config.database.user}:{config.database.password}@postgres/{config.database.database}',
+        future=True
+    )
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    async_sessionmaker = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession, future=True)
+
     bot['config'] = config
     bot['redis'] = redis
+    bot['database'] = async_sessionmaker
 
     register_all_middlewares(dp, config)
     register_all_filters(dp)

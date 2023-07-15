@@ -9,6 +9,9 @@ aioredis = "*"
 environs = "*"
 uvloop = "*"
 ujson = "*"
+asyncpg = "*"
+sqlalchemy = {extras = ["asyncio"], version = "*"}
+redis = "*"
 
 [dev-packages]
 
