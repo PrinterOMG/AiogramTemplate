@@ -12,6 +12,7 @@ ujson = "*"
 asyncpg = "*"
 sqlalchemy = {extras = ["asyncio"], version = ">=2.*"}
 redis = "*"
+alembic = "*"
 
 [dev-packages]
 
