@@ -6,8 +6,7 @@ import os
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 from tgbot.config import load_config
 from tgbot import handlers
@@ -37,18 +36,15 @@ async def main():
 
     bot = Bot(token=config.bot.token, parse_mode='HTML')
 
-    engine = create_async_engine(
-        f'postgresql+asyncpg://{config.database.user}:{config.database.password}@postgres/{config.database.database}',
-        future=True
-    )
-    async_sessionmaker = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession, future=True)
+    engine = create_async_engine(config.database.url)
+    async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
     redis = Redis(host='redis')
     storage = RedisStorage(redis)
     dp = Dispatcher(storage=storage,
                     config=config,
                     redis=redis,
-                    db=async_sessionmaker)
+                    db=async_session)
 
     register_all_middlewares(dp)
 

@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 
 from environs import Env
+from sqlalchemy import URL
 
 
 @dataclass
 class DatabaseConfig:
-    password: str
-    user: str
-    database: str
+    url: URL
 
 
 @dataclass
@@ -40,9 +39,14 @@ def load_config(path: str = None):
             write_logs=env.bool('WRITE_LOGS'),
         ),
         database=DatabaseConfig(
-            password=env.str('POSTGRES_PASSWORD'),
-            user=env.str('POSTGRES_USER'),
-            database=env.str('POSTGRES_DB')
+            url=URL.create(
+                drivername='postgresql+asyncpg',
+                username=env.str('POSTGRES_USER'),
+                password=env.str('POSTGRES_PASSWORD'),
+                host=env.str('POSTGRES_HOST'),
+                port=env.int('POSTGRES_PORT'),
+                database=env.str('POSTGRES_DB')
+            )
         ),
         misc=Miscellaneous()
     )
