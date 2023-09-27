@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aiogram = "*"
+aiogram = ">=3.*"
 aioredis = "*"
 environs = "*"
 uvloop = "*"
 ujson = "*"
 asyncpg = "*"
-sqlalchemy = {extras = ["asyncio"], version = "*"}
+sqlalchemy = {extras = ["asyncio"], version = ">=2.*"}
 redis = "*"
 
 [dev-packages]
