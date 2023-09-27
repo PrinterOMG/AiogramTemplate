@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "aiogramtemplate"
+version = "0.1.0"
+description = ""
+authors = ["PrinterOMG"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "^3.1.1"
+sqlalchemy = {version = "^2.0.21", extras = ["asyncio"]}
+asyncpg = "^0.28.0"
+uvloop = "^0.17.0"
+ujson = "^5.8.0"
+alembic = "^1.12.0"
+environs = "^9.5.0"
+redis = "^5.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
