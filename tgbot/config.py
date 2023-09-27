@@ -10,6 +10,13 @@ class DatabaseConfig:
 
 
 @dataclass
+class RedisConfig:
+    host: str
+    port: int
+    password: str
+
+
+@dataclass
 class TelegramBot:
     token: str
     admin_ids: list[int]
@@ -25,6 +32,7 @@ class Miscellaneous:
 class Config:
     bot: TelegramBot
     database: DatabaseConfig
+    redis: RedisConfig
     misc: Miscellaneous
 
 
@@ -47,6 +55,11 @@ def load_config(path: str = None):
                 port=env.int('POSTGRES_PORT'),
                 database=env.str('POSTGRES_DB')
             )
+        ),
+        redis=RedisConfig(
+            host=env.str('REDIS_HOST'),
+            port=env.int('REDIS_PORT'),
+            password=env.str('REDIS_PASSWORD')
         ),
         misc=Miscellaneous()
     )

@@ -39,7 +39,7 @@ async def main():
     engine = create_async_engine(config.database.url)
     async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
-    redis = Redis(host='redis')
+    redis = Redis(host=config.redis.host, port=config.redis.port, password=config.redis.password)
     storage = RedisStorage(redis)
     dp = Dispatcher(storage=storage,
                     config=config,
