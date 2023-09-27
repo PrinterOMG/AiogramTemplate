@@ -1,5 +1,5 @@
-from .commands import register_commands
+from .commands import commands_router
 
-register_functions = (
-    register_commands,
+routers = (
+    commands_router,
 )
