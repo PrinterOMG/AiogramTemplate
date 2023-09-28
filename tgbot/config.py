@@ -1,35 +1,31 @@
-from dataclasses import dataclass
+import os
 
-from environs import Env
+from dotenv import load_dotenv
+from pydantic import BaseModel
 from sqlalchemy import URL
 
 
-@dataclass
-class DatabaseConfig:
-    url: URL
+class DatabaseConfig(BaseModel):
+    url: str
 
 
-@dataclass
-class RedisConfig:
+class RedisConfig(BaseModel):
     host: str
     port: int
-    password: str
+    password: str | None
 
 
-@dataclass
-class TelegramBot:
+class TelegramBot(BaseModel):
     token: str
     admin_ids: list[int]
     write_logs: bool
 
 
-@dataclass
-class Miscellaneous:
+class Miscellaneous(BaseModel):
     other_params: str = ''
 
 
-@dataclass
-class Config:
+class Config(BaseModel):
     bot: TelegramBot
     database: DatabaseConfig
     redis: RedisConfig
@@ -37,29 +33,28 @@ class Config:
 
 
 def load_config(path: str = None):
-    env = Env()
-    env.read_env(path)
+    load_dotenv(dotenv_path=path)
 
     return Config(
         bot=TelegramBot(
-            token=env.str('BOT_TOKEN'),
-            admin_ids=list(map(int, env.list('ADMINS'))),
-            write_logs=env.bool('WRITE_LOGS'),
+            token=os.getenv('BOT_TOKEN'),
+            admin_ids=os.getenv('ADMINS', '').split(','),
+            write_logs=os.getenv('WRITE_LOGS', 'False'),
         ),
         database=DatabaseConfig(
             url=URL.create(
                 drivername='postgresql+asyncpg',
-                username=env.str('POSTGRES_USER'),
-                password=env.str('POSTGRES_PASSWORD'),
-                host=env.str('POSTGRES_HOST'),
-                port=env.int('POSTGRES_PORT'),
-                database=env.str('POSTGRES_DB')
-            )
+                username=os.getenv('POSTGRES_USER'),
+                password=os.getenv('POSTGRES_PASSWORD'),
+                host=os.getenv('POSTGRES_HOST', '127.0.0.1'),
+                port=os.getenv('POSTGRES_PORT', 5432),
+                database=os.getenv('POSTGRES_DB')
+            ).__str__()
         ),
         redis=RedisConfig(
-            host=env.str('REDIS_HOST'),
-            port=env.int('REDIS_PORT'),
-            password=env.str('REDIS_PASSWORD')
+            host=os.getenv('REDIS_HOST', '127.0.0.1'),
+            port=os.getenv('REDIS_PORT', 6379),
+            password=os.getenv('REDIS_PASSWORD')
         ),
         misc=Miscellaneous()
     )
